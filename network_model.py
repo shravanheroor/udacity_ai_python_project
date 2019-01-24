@@ -122,38 +122,49 @@ def loadData(dataDir):
    
 # given a file with a map of the class to a name, load and return
 def loadClassNames(fileName):
-    with open('cat_to_name.json', 'r') as f:
+    with open(fileName, 'r') as f:
         classNamesMap = json.load(f)
     return classNamesMap
 
-def saveCheckPoint(currentModel, classtoidx, classes, epochs, lr, checkpointFile):
+def saveCheckPoint(currentModel, currentModelName, classtoidx, epochs, lr, checkpointFile, dropout=0.5):
     '''
         Save some information in the checkpoint file. Most important info
         is the model, modelstate, and class to index map. We store additional 
         data
     '''
     checkpoint = {
+        'name' : currentModelName,
+        'classifierIpSize': currentModel.classifier[0].in_features,
+        'hiddenLayerSize': currentModel.classifier[0].out_features,
+        'opClasses': currentModel.classifier[3].out_features,
+        'dropout': dropout, 
         'epochs': epochs,
         'classtoidx': classtoidx,
-        'classes' : classes,
         'learrate': lr,
         'optimizer': 'Adam',
-        'model': currentModel,
         'stateDict': currentModel.state_dict()
     }
 
     torch.save(checkpoint, checkpointFile)
 
 # load check point
-def loadCheckpoint(checkpointFile):
+def loadCheckpoint(checkpointFile, device):
     '''
         Load the checkpoint file. Return the model (with state reloaded)
         and class to index map. Additional info not returned currently
     '''
     chkpoint = torch.load(checkpointFile)
-    model = chkpoint['model']
+    modelName = chkpoint['name']
+    classifierIpSize = chkpoint['classifierIpSize']
+    hiddenLayerSize = chkpoint['hiddenLayerSize']
+    opClasses = chkpoint['opClasses']
+    dropout = chkpoint['dropout']
     epochs = chkpoint['epochs']
     lr = chkpoint['learrate']
     classtoidx = chkpoint['classtoidx']
+    # create the model
+    model, criterion, optimizer = initModel(modelName, opClasses, hiddenLayerSize, device, dropout=dropout, lr=lr)
     model.load_state_dict(chkpoint['stateDict'])
+    model.to(device)
+    
     return model, classtoidx

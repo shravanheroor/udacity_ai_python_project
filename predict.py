@@ -48,7 +48,7 @@ def predict():
         device = torch.device("cuda:0" if args.gpu else "cpu")
         
         # load checkpoint
-        newmodel, classtoidx = loadCheckpoint(args.checkpointPath)
+        newmodel, classtoidx = loadCheckpoint(args.checkpointPath, device)
         
         # load the category names
         catNames = loadClassNames(args.catNames)
@@ -58,9 +58,9 @@ def predict():
 
         # compute the reverse map of index to class name
         idxtoclass = {v: k for k, v in classtoidx.items()}
-        # move model to device and run in eval mode
-        newmodel.to(device)
+        # run in eval mode
         newmodel.eval()
+        
         # no gradients 
         with torch.no_grad():
             # convert to a batch of tensors of size 1

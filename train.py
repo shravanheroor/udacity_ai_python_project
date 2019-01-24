@@ -99,7 +99,7 @@ def train():
             trainData(model, dataLoaders['train'], dataLoaders['valid'], args.epochs, 20, criterion, optimizer, device)
                             
         # save checkpoint
-        saveCheckPoint(model, imageDatasets['train'].class_to_idx, imageDatasets['train'].classes, args.epochs, args.learningRate, args.checkpointDir + '/checkpoint.pth')
+        saveCheckPoint(model, args.arch, imageDatasets['train'].class_to_idx, args.epochs, args.learningRate, args.checkpointDir + '/checkpoint.pth')
                             
         # done
         sys.exit(0)
